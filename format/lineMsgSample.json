@@ -1,0 +1,180 @@
+{
+  "type": "bubble",
+  "body": {
+    "type": "box",
+    "layout": "vertical",
+    "contents": [
+      {
+        "type": "text",
+        "text": "ORDER",
+        "weight": "bold",
+        "color": "#1DB446",
+        "size": "sm"
+      },
+      {
+        "type": "text",
+        "text": "MATIC/USDT",
+        "weight": "bold",
+        "size": "xxl",
+        "margin": "md"
+      },
+      {
+        "type": "box",
+        "layout": "horizontal",
+        "contents": [
+          {
+            "type": "text",
+            "text": "訂單狀況",
+            "size": "md",
+            "color": "#555555"
+          },
+          {
+            "type": "text",
+            "text": "success",
+            "size": "md",
+            "color": "#111111",
+            "align": "end"
+          }
+        ],
+        "margin": "none"
+      },
+      {
+        "type": "separator",
+        "margin": "xxl"
+      },
+      {
+        "type": "box",
+        "layout": "vertical",
+        "margin": "xxl",
+        "spacing": "sm",
+        "contents": [
+          {
+            "type": "box",
+            "layout": "horizontal",
+            "contents": [
+              {
+                "type": "text",
+                "text": "下單類型",
+                "size": "md",
+                "color": "#555555"
+              },
+              {
+                "type": "text",
+                "text": "order",
+                "size": "md",
+                "color": "#111111",
+                "align": "end"
+              }
+            ]
+          },
+          {
+            "type": "box",
+            "layout": "horizontal",
+            "contents": [
+              {
+                "type": "text",
+                "text": "方向",
+                "size": "md",
+                "color": "#555555"
+              },
+              {
+                "type": "text",
+                "text": "buy",
+                "size": "md",
+                "color": "#111111",
+                "align": "end"
+              }
+            ]
+          },
+          {
+            "type": "box",
+            "layout": "horizontal",
+            "contents": [
+              {
+                "type": "text",
+                "text": "價格",
+                "size": "md",
+                "color": "#555555"
+              },
+              {
+                "type": "text",
+                "text": "$ 0.44",
+                "size": "md",
+                "color": "#111111",
+                "align": "end"
+              }
+            ]
+          },
+          {
+            "type": "box",
+            "layout": "horizontal",
+            "contents": [
+              {
+                "type": "text",
+                "text": "下單數量",
+                "size": "md",
+                "color": "#555555"
+              },
+              {
+                "type": "text",
+                "text": " 427.0",
+                "size": "md",
+                "color": "#111111",
+                "align": "end"
+              }
+            ]
+          },
+          {
+            "type": "box",
+            "layout": "horizontal",
+            "contents": [
+              {
+                "type": "text",
+                "text": "槓桿",
+                "size": "md",
+                "color": "#555555"
+              },
+              {
+                "type": "text",
+                "text": "10x",
+                "size": "md",
+                "color": "#111111",
+                "align": "end"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "separator",
+        "margin": "xxl"
+      },
+      {
+        "type": "box",
+        "layout": "horizontal",
+        "margin": "md",
+        "contents": [
+          {
+            "type": "text",
+            "text": "時間",
+            "size": "xs",
+            "color": "#aaaaaa",
+            "flex": 0
+          },
+          {
+            "type": "text",
+            "text": "2022-07-26T13:31:26.198Z",
+            "color": "#aaaaaa",
+            "size": "xs",
+            "align": "end"
+          }
+        ]
+      }
+    ]
+  },
+  "styles": {
+    "footer": {
+      "separator": true
+    }
+  }
+}

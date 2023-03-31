@@ -1,0 +1,12 @@
+{
+  "PASSWORD": "yayabot0214",
+  "TOTAL_ORDER": 2,
+  "TICKER": "{{ticker}}",
+  "SIDE": "{{strategy.order.alert_message}}",
+  "ORDER_PRICE": {{plot_0}},
+  "LIMIT_PRICE": {{plot_1}},
+  "STOP_PRICE": {{plot_2}},
+  "LEVER": {{plot_3}},
+  "ORDER_PERC": {{plot_4}},
+  "ORDER_TIME": {{plot_5}}
+}
