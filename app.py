@@ -1,4 +1,4 @@
-from binanceAPI import binance
+from binanceAPI import Binance
 from flask import Flask, request
 import json
 import os
@@ -11,8 +11,15 @@ app = Flask(__name__)
 def main():
 
     reqData = json.loads(request.data)
-    order = binance(reqData)
-    msg = order.putOrder()
+    binance = Binance(reqData)
+    account = binance.getAccountInfo()
+    if "respError" in account:
+        return account["respError"]
+
+    msg = binance.putOrder()
+    if "respError" in msg:
+        return msg["respError"]
+
     print(msg)
     return msg
 

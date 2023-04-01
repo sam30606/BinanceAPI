@@ -40,7 +40,7 @@ class TradingView:
         self.orderTime = reqData["ORDER_TIME"]
 
 
-class binance(TradingView):
+class Binance(TradingView):
     def __init__(self, reqData) -> None:
         TradingView.__init__(self, reqData)
         apikey = os.getenv("BINANCE_TOEKN")
@@ -48,13 +48,15 @@ class binance(TradingView):
         # servertime = self.requestGet("https://data.binance.com/api/v3/time")["serverTime"]
         # self.timeStamp = servertime
         self.timeStamp = self.orderTime
+
         self.headers = {"X-MBX-APIKEY": apikey}
 
+    def getAccountInfo(self):
         accountInfo = self.requestGetPrivate("/fapi/v2/account", self.getSignature())
-        # self.balance = Decimal(str(accountInfo["totalMarginBalance"]))
+        if "respError" in accountInfo:
+            return accountInfo
 
         self.marginAva = Decimal(str(accountInfo["availableBalance"]))
-
         self.tradingCount = self.getTradingCount(accountInfo["positions"])
         if self.total_order - self.tradingCount >= 1:
             self.perAmount = Decimal(str(round(self.marginAva / (self.total_order - self.tradingCount) * self.orderPerc / self.lever, 2)))
@@ -62,13 +64,13 @@ class binance(TradingView):
             #     str((self.marginAva - self.balance * Decimal(str(0.2))) / (self.total_order - self.tradingCount) * self.orderPerc)
             # )
         else:
-            raise {"code": "error", "message": "TradingCount too much."}
+            return {"code": "error", "message": "TradingCount too much."}
 
         if self.perAmount < 1:
-            raise {"code": "error", "message": "Balance not enough."}
+            return {"code": "error", "message": "Balance not enough."}
 
-        self.setMarginType()
-        self.setLever()
+        return accountInfo
+        # self.balance = Decimal(str(accountInfo["totalMarginBalance"]))
 
     def getTradingCount(self, positions):
         count = 0
@@ -79,19 +81,28 @@ class binance(TradingView):
 
     def requestGet(self, url):
         r = requests.get(url=url)
-        response = r.json()
-        return response
+        if r.status_code != 200:
+            return {"respError": r.json()}
+        else:
+            response = r.json()
+            return response
 
     def requestGetPrivate(self, url, signature):
         r = requests.get(url="https://testnet.binancefuture.com/" + url, headers=self.headers, params=signature)
-        response = r.json()
-        return response
+        if r.status_code != 200:
+            return {"respError": r.json()}
+        else:
+            response = r.json()
+            return response
 
     def requestPost(self, url, params, signature):
         params.update(signature)
         r = requests.post(url="https://testnet.binancefuture.com/" + url, headers=self.headers, data=params)
-        response = r.json()
-        return response
+        if r.status_code != 200:
+            return {"respError": r.json()}
+        else:
+            response = r.json()
+            return response
 
     def setMarginType(self):
         params = {"symbol": self.symbol, "marginType": "CROSSED"}
@@ -124,6 +135,9 @@ class binance(TradingView):
         return signature
 
     def putOrder(self):
+        self.setMarginType()
+        self.setLever()
+
         if self.side == "BUY":
             limitSide = "SELL"
             stopSide = "SELL"
@@ -167,4 +181,7 @@ class binance(TradingView):
         params = {"batchOrders": json.dumps(orderData)}
         endPoint = "/fapi/v1/batchOrders"
         orderResp = self.requestPost(endPoint, params, self.getSignature(params))
+        if "respError" in orderResp:
+            return orderResp
+
         return orderResp
