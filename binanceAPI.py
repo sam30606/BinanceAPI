@@ -62,14 +62,14 @@ class Binance(TradingView):
 
         self.positionDatas = self.formatPositionDatas(accountInfo["positions"])
         tradingCount = self.positionDatas["tradingCount"]
-
-        if self.total_order - tradingCount >= 1:
-            self.perAmount = Decimal(str(round(marginAva / (self.total_order - tradingCount) * self.orderPerc / self.orderPrice * self.lever, 2)))
-            # self.perAmount = Decimal(
-            #     str((marginAva - self.balance * Decimal(str(0.2))) / (self.total_order - tradingCount) * self.orderPerc)
-            # )
-        else:
-            return {"respError": {"code": "error", "message": "TradingCount too much."}}
+        if self.side != "CLOSE":
+            if self.total_order - tradingCount < 1:
+                self.perAmount = Decimal(str(round(marginAva / (self.total_order - tradingCount) * self.orderPerc / self.orderPrice * self.lever, 2)))
+                # self.perAmount = Decimal(
+                #     str((marginAva - self.balance * Decimal(str(0.2))) / (self.total_order - tradingCount) * self.orderPerc)
+                # )
+            else:
+                return {"respError": {"code": "error", "message": "TradingCount too much."}}
 
         # if self.perAmount < 0.1:
         #     return {"respError": {"code": "error", "message": "Balance not enough."}}
@@ -115,6 +115,15 @@ class Binance(TradingView):
     def requestPost(self, url, params, signature):
         params.update(signature)
         r = requests.post(url="https://testnet.binancefuture.com/" + url, headers=self.headers, data=params)
+        if r.status_code != 200:
+            return {"respError": r.json()}
+        else:
+            response = r.json()
+            return response
+
+    def requestDelete(self, url, params, signature):
+        params.update(signature)
+        r = requests.delete(url="https://testnet.binancefuture.com/" + url, headers=self.headers, data=params)
         if r.status_code != 200:
             return {"respError": r.json()}
         else:
@@ -168,7 +177,10 @@ class Binance(TradingView):
             limitSide = "BUY"
             stopSide = "BUY"
         else:
-            return {"respError": {"code": "error", "message": "It's close."}}
+            params = {"symbol": self.symbol}
+            endPoint = "/fapi/v1/allOpenOrders"
+            delereResp = self.requestDelete(endPoint, params, self.getSignature(params))
+            return delereResp
 
         orderData = [
             {
