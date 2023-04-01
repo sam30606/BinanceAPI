@@ -46,15 +46,14 @@ class Binance(TradingView):
         self.getMinTick()
         apikey = os.getenv("BINANCE_TOEKN")
 
-        # servertime = self.requestGet("https://data.binance.com/api/v3/time")["serverTime"]
-        # self.timeStamp = servertime
+        self.servertime = self.requestGet("/fapi/v1/time")["serverTime"]
         self.timeStamp = self.orderTime
 
         self.headers = {"X-MBX-APIKEY": apikey}
 
     def getAccountInfo(self):
         endPoint = "/fapi/v2/account"
-        accountInfo = self.requestGetPrivate(endPoint, self.getSignature())
+        accountInfo = self.requestGetPrivate(endPoint, self.getSignature(self.servertime))
         if "respError" in accountInfo:
             return accountInfo
 
@@ -134,7 +133,7 @@ class Binance(TradingView):
         if self.positionDatas[self.symbol]["isolated"] == True:
             params = {"symbol": self.symbol, "marginType": "CROSSED"}
             endPoint = "/fapi/v1/marginType"
-            response = self.requestPost(endPoint, params, self.getSignature(params))
+            response = self.requestPost(endPoint, params, self.getSignature(self.servertime, params))
             print("setMarginType", response)
         else:
             print("setMarginType", "Nothing to change")
@@ -143,25 +142,29 @@ class Binance(TradingView):
         if self.positionDatas[self.symbol]["leverage"] != str(self.lever):
             params = {"symbol": self.symbol, "leverage": self.lever}
             endPoint = "/fapi/v1/leverage"
-            response = self.requestPost(endPoint, params, self.getSignature(params))
+            response = self.requestPost(endPoint, params, self.getSignature(self.servertime, params))
             print("setLever", response)
         else:
             print("setLever", "Nothing to change")
 
-    def getSignature(self, params={}):
+    def getSignature(
+        self,
+        timeStamp,
+        params={},
+    ):
         secret = os.getenv("BINANCE_SECRET")
         if params:
-            params["timestamp"] = self.timeStamp
+            params["timestamp"] = timeStamp
             params = urlencode(params)
         else:
             params = urlencode(
                 {
-                    "timestamp": self.timeStamp,
+                    "timestamp": timeStamp,
                 }
             )
         hashedsig = hmac.new(secret.encode("utf-8"), params.encode("utf-8"), hashlib.sha256).hexdigest()
         signature = {
-            "timestamp": self.timeStamp,
+            "timestamp": timeStamp,
             "signature": hashedsig,
         }
         return signature
@@ -179,19 +182,11 @@ class Binance(TradingView):
         else:
             params = {"symbol": self.symbol}
             endPoint = "/fapi/v1/allOpenOrders"
-            delereResp = self.requestDelete(endPoint, params, self.getSignature(params))
+            delereResp = self.requestDelete(endPoint, params, self.getSignature(self.servertime, params))
             return delereResp
 
         orderData = [
-            {
-                "symbol": self.symbol,
-                "side": self.side,
-                "positionSide": "BOTH",
-                "type": "LIMIT",
-                "quantity": str(self.perAmount),
-                "price": str(self.orderPrice),
-                "timeInForce": "GTC",
-            },
+            {"symbol": self.symbol, "side": self.side, "positionSide": "BOTH", "type": "MARKET", "quantity": str(self.perAmount)},
             {
                 "symbol": self.symbol,
                 "side": limitSide,
@@ -217,7 +212,7 @@ class Binance(TradingView):
         ]
         params = {"batchOrders": json.dumps(orderData)}
         endPoint = "/fapi/v1/batchOrders"
-        orderResp = self.requestPost(endPoint, params, self.getSignature(params))
+        orderResp = self.requestPost(endPoint, params, self.getSignature(self.orderTime, params))
         if "respError" in orderResp:
             return orderResp
         return orderResp
