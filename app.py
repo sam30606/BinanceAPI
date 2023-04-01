@@ -14,10 +14,12 @@ def main():
     binance = Binance(reqData)
     account = binance.getAccountInfo()
     if "respError" in account:
+        print(account["respError"])
         return account["respError"]
 
     msg = binance.putOrder()
     if "respError" in msg:
+        print(msg["respError"])
         return msg["respError"]
 
     print(msg)

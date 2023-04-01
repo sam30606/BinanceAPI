@@ -141,7 +141,7 @@ class Binance(TradingView):
         if self.side == "BUY":
             limitSide = "SELL"
             stopSide = "SELL"
-        elif self.side != "SELL":
+        elif self.side == "SELL":
             limitSide = "BUY"
             stopSide = "BUY"
         else:
