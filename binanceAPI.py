@@ -64,10 +64,10 @@ class Binance(TradingView):
             #     str((self.marginAva - self.balance * Decimal(str(0.2))) / (self.total_order - self.tradingCount) * self.orderPerc)
             # )
         else:
-            return {"code": "error", "message": "TradingCount too much."}
+            return {"respError": {"code": "error", "message": "TradingCount too much."}}
 
         if self.perAmount < 1:
-            return {"code": "error", "message": "Balance not enough."}
+            return {"respError": {"code": "error", "message": "Balance not enough."}}
 
         return accountInfo
         # self.balance = Decimal(str(accountInfo["totalMarginBalance"]))
@@ -145,7 +145,7 @@ class Binance(TradingView):
             limitSide = "BUY"
             stopSide = "BUY"
         else:
-            raise "It's close"
+            return {"respError": {"code": "error", "message": "It's close."}}
 
         orderData = [
             {
