@@ -63,7 +63,7 @@ class Binance(TradingView):
         self.positionDatas = self.formatPositionDatas(accountInfo["positions"])
         tradingCount = self.positionDatas["tradingCount"]
         if self.side != "CLOSE":
-            if self.total_order - tradingCount < 1:
+            if self.total_order - tradingCount >= 1:
                 self.perAmount = Decimal(str(round(marginAva / (self.total_order - tradingCount) * self.orderPerc / self.orderPrice * self.lever, 2)))
                 # self.perAmount = Decimal(
                 #     str((marginAva - self.balance * Decimal(str(0.2))) / (self.total_order - tradingCount) * self.orderPerc)
