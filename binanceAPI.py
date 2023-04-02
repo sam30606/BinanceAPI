@@ -169,9 +169,15 @@ class Binance(TradingView):
         }
         return signature
 
+    def clearOrders(self):
+        params = {"symbol": self.symbol}
+        endPoint = "/fapi/v1/allOpenOrders"
+        self.requestDelete(endPoint, params, self.getSignature(self.servertime, params))
+
     def putOrder(self):
         self.setMarginType()
         self.setLever()
+        self.clearOrders()
 
         if self.side == "BUY":
             limitSide = "SELL"
@@ -180,10 +186,7 @@ class Binance(TradingView):
             limitSide = "BUY"
             stopSide = "BUY"
         else:
-            params = {"symbol": self.symbol}
-            endPoint = "/fapi/v1/allOpenOrders"
-            delereResp = self.requestDelete(endPoint, params, self.getSignature(self.servertime, params))
-            return delereResp
+            return {"respError": {"code": "error", "message": "It's close."}}
 
         orderData = [
             {"symbol": self.symbol, "side": self.side, "positionSide": "BOTH", "type": "MARKET", "quantity": str(self.perAmount)},
