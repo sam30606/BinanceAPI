@@ -172,7 +172,7 @@ class Binance(TradingView):
     def clearOrders(self):
         params = {"symbol": self.symbol}
         endPoint = "/fapi/v1/allOpenOrders"
-        self.requestDelete(endPoint, params, self.getSignature(self.servertime, params))
+        self.requestDelete(endPoint, params, self.getSignature(self.orderTime, params))
 
     def putOrder(self):
         self.setMarginType()
