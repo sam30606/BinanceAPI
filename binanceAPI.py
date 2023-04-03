@@ -43,46 +43,50 @@ class TradingView:
 class Binance(TradingView):
     def __init__(self, reqData) -> None:
         TradingView.__init__(self, reqData)
-        self.getMinTick()
         apikey = os.getenv("BINANCE_TOEKN")
+        self.headers = {"X-MBX-APIKEY": apikey}
 
         self.servertime = self.requestGet("/fapi/v1/time")["serverTime"]
         self.timeStamp = self.orderTime
 
-        self.headers = {"X-MBX-APIKEY": apikey}
-
     def getAccountInfo(self):
+        stepSize = self.getMinTick()
+
         endPoint = "/fapi/v2/account"
         accountInfo = self.requestGetPrivate(endPoint, self.getSignature(self.servertime))
         if "respError" in accountInfo:
             return accountInfo
 
         marginAva = Decimal(str(accountInfo["availableBalance"]))
-
         self.positionDatas = self.formatPositionDatas(accountInfo["positions"])
         tradingCount = self.positionDatas["tradingCount"]
+
         if self.side != "CLOSE":
             if self.total_order - tradingCount >= 1:
-                self.perAmount = Decimal(str(round(marginAva / (self.total_order - tradingCount) * self.orderPerc / self.orderPrice * self.lever, 2)))
-                # self.perAmount = Decimal(
-                #     str((marginAva - self.balance * Decimal(str(0.2))) / (self.total_order - tradingCount) * self.orderPerc)
-                # )
+                self.perAmount = Decimal(
+                    str(round(marginAva / (self.total_order - tradingCount) * self.orderPerc / self.orderPrice * self.lever, stepSize))
+                )
             else:
                 return {"respError": {"code": "error", "message": "TradingCount too much."}}
-
-        # if self.perAmount < 0.1:
-        #     return {"respError": {"code": "error", "message": "Balance not enough."}}
         return accountInfo
-        # self.balance = Decimal(str(accountInfo["totalMarginBalance"]))
 
     def getMinTick(self):
-        endPoint = "/fapi/v1/ticker/price"
-        params = {"symbol": self.symbol}
-        price = self.requestGet(endPoint, params)["price"]
-        minTick = len(str(price).split(".")[1])
-        self.orderPrice = Decimal(str(round(self.orderPrice, minTick)))
-        self.limitPrice = Decimal(str(round(self.limitPrice, minTick)))
-        self.stopPrice = Decimal(str(round(self.stopPrice, minTick)))
+        endPoint = "/fapi/v1/exchangeInfo"
+        info = self.requestGet(endPoint)
+        for symbol in info["symbols"]:
+            if symbol["symbol"] == self.symbol:
+                for filter in symbol["filters"]:
+                    if filter["filterType"] == "MARKET_LOT_SIZE":
+                        stepSize = filter["stepSize"]
+                    elif filter["filterType"] == "PRICE_FILTER":
+                        ticksize = filter["tickSize"]
+                break
+        ticksize = len(str(ticksize).split(".")[1])
+        stepSize = len(str(stepSize).split(".")[1])
+        self.orderPrice = Decimal(str(round(self.orderPrice, ticksize)))
+        self.limitPrice = Decimal(str(round(self.limitPrice, ticksize)))
+        self.stopPrice = Decimal(str(round(self.stopPrice, ticksize)))
+        return stepSize
 
     def formatPositionDatas(self, positions):
         datas = {}
