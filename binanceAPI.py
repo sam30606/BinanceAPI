@@ -46,6 +46,7 @@ class Binance(TradingView):
         apikey = os.getenv("BINANCE_TOEKN")
         self.headers = {"X-MBX-APIKEY": apikey}
 
+        self.baseUrl = os.getenv("BINANCE_URL")
         self.servertime = self.requestGet("/fapi/v1/time")["serverTime"]
         self.timeStamp = self.orderTime
 
@@ -100,7 +101,7 @@ class Binance(TradingView):
         return datas
 
     def requestGet(self, url, params={}):
-        r = requests.get(url="https://testnet.binancefuture.com/" + url, params=params)
+        r = requests.get(url=self.baseUrl + url, params=params)
         if r.status_code != 200:
             return {"respError": r.json()}
         else:
@@ -108,7 +109,7 @@ class Binance(TradingView):
             return response
 
     def requestGetPrivate(self, url, signature):
-        r = requests.get(url="https://testnet.binancefuture.com/" + url, headers=self.headers, params=signature)
+        r = requests.get(url=self.baseUrl + url, headers=self.headers, params=signature)
         if r.status_code != 200:
             return {"respError": r.json()}
         else:
@@ -117,7 +118,7 @@ class Binance(TradingView):
 
     def requestPost(self, url, params, signature):
         params.update(signature)
-        r = requests.post(url="https://testnet.binancefuture.com/" + url, headers=self.headers, data=params)
+        r = requests.post(url=self.baseUrl + url, headers=self.headers, data=params)
         if r.status_code != 200:
             return {"respError": r.json()}
         else:
@@ -126,7 +127,7 @@ class Binance(TradingView):
 
     def requestDelete(self, url, params, signature):
         params.update(signature)
-        r = requests.delete(url="https://testnet.binancefuture.com/" + url, headers=self.headers, data=params)
+        r = requests.delete(url=self.baseUrl + url, headers=self.headers, data=params)
         if r.status_code != 200:
             return {"respError": r.json()}
         else:
