@@ -83,7 +83,10 @@ class Binance(TradingView):
                         ticksize = filter["tickSize"]
                 break
         ticksize = len(str(ticksize).split(".")[1])
-        stepSize = len(str(stepSize).split(".")[1])
+        if stepSize != "1":
+            stepSize = len(str(stepSize).split(".")[1])
+        else:
+            stepSize = len(str(stepSize))
         self.orderPrice = Decimal(str(round(self.orderPrice, ticksize)))
         self.limitPrice = Decimal(str(round(self.limitPrice, ticksize)))
         self.stopPrice = Decimal(str(round(self.stopPrice, ticksize)))
