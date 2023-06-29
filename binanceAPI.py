@@ -57,8 +57,7 @@ class Binance(TradingView):
         accountInfo = self.requestGetPrivate(endPoint, self.getSignature(self.servertime))
         if "respError" in accountInfo:
             return accountInfo
-
-        marginAva = Decimal(str(accountInfo["availableBalance"] * 0.95))
+        marginAva = Decimal(str(float(accountInfo["availableBalance"]) * 0.95))
         self.positionDatas = self.formatPositionDatas(accountInfo["positions"])
         tradingCount = self.positionDatas["tradingCount"]
 
